@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import anthropic
 import os
 import ai_config
@@ -9,6 +10,7 @@ import dotenv
 dotenv.load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 client = anthropic.Anthropic(
     api_key=os.environ.get("CLAUDE_API_KEY")
 )
@@ -69,7 +71,7 @@ def process_transcript():
     except Exception as e:
         return jsonify({'error': f'Error processing transcript: {str(e)}'}), 500
     
-    max_blog_posts = 5
+    max_blog_posts = 1
     blog_counter = 0
     for blog_topic in blog_topics:             
         while blog_counter < max_blog_posts:

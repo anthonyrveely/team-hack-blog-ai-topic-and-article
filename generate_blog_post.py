@@ -24,7 +24,7 @@ def generate_blog_post_function(blog_topic: str, products: list):
             messages=[
                 {
                     "role": "user", 
-                    "content": f"Please create a 500 word blog post for this topic and highlight and create a backlink to the relevant products related to the blog post:\n\n<blog_topic>{blog_topic}</blog_topic><products>{products}</products>"
+                    "content": f"Please create a 500 word blog post for this topic and highlight and create a backlink to the relevant products through html tags related to the blog post:\n\n<blog_topic>{blog_topic}</blog_topic><products>{products}</products>. Always return as an html formatted string for the content."
                 }
             ],
             tools=[
