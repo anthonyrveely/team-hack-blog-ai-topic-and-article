@@ -15,30 +15,63 @@ client = anthropic.Anthropic(
 def process_transcript():
     data = request.json
     transcript = data.get('transcript')
+    blog_topics = []
+    products = []
 
     if not transcript:
         return jsonify({'error': 'No transcript provided'}), 400
 
     # Process the transcript using Claude AI
-    try:
+    try:           
         response = client.messages.create(
-            model=ai_config.CLAUD_MODEL,
-            max_tokens=1024,
+            model=ai_config.CLAUDE_MODEL,
+            max_tokens=4096,
+            system=ai_config.SYSTEM_PROMPT,
             messages=[
                 {
                     "role": "user", 
-                    "content": f"Based on the following transcript, suggest 5 blog topics:\n\n{transcript}"
+                    "content": f"Based on the following transcript, suggest blog topics and parse out the products discussed:\n\n{transcript}"
                 }
-            ]
+            ],
+            tools=[
+                {
+                    "name": "analyze_transcript_tool",
+                    "description": "Use the given transcript to parse out all of the products discussed and generate blog topics for from the topics discussed in the transcript.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "blog_topics": {
+                                "type": "array",
+                                "description": "The blog topics to be generated from the transcript."
+                            },
+                            "products": {
+                                "type": "array",
+                                "description": "The products discussed in the transcript."
+                            }
+                        },
+                        "required": ["blog_topics", "products"]
+                    }
+                }
+            ],
+            tool_choice={"type": "tool", "name": "analyze_transcript_tool"},
         )
-        blog_topics = response.content[0].text.split('\n')
-        print(blog_topics)
+        print("response")
+        print(response.content)
+        for content in response.content:
+            if content.type == "tool_use":
+                if content.name == "analyze_transcript_tool":
+                    print(content.input)
+                    blog_topics.extend(content.input["blog_topics"])
+                    print(blog_topics)
+                    products.extend(content.input["products"])
+                    print(products)
+        
     except Exception as e:
         return jsonify({'error': f'Error processing transcript: {str(e)}'}), 500
 
     result = {
-        'received_transcript': transcript,
-        'blog_topics': blog_topics
+        'blog_topics': blog_topics,
+        'products': products
     }
 
     return jsonify(result), 200
