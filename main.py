@@ -32,6 +32,7 @@ def process_transcript():
             model=ai_config.CLAUDE_MODEL,
             max_tokens=4096,
             system=ai_config.SYSTEM_PROMPT,
+            temperature=0.0,
             messages=[
                 {
                     "role": "user", 
@@ -76,7 +77,7 @@ def process_transcript():
     for blog_topic in blog_topics:             
         while blog_counter < max_blog_posts:
             blog_post = generate_blog_post.generate_blog_post_function(blog_topic, products)                    
-            upload_post(title=blog_post["blog_title"], content=blog_post["blog_content"], tags=blog_post["tags"], categories=blog_post["categories"])        
+            upload_post(title=blog_post["blog_title"], content=blog_post["blog_content"], image_query=blog_post["image_query"], tags=blog_post["tags"], categories=blog_post["categories"])        
             blog_counter += 1
     
     result = {

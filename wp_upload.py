@@ -70,4 +70,4 @@ def upload_post(title, content, image_query, tags=[], categories=[]):
     print(f"Post uploaded successfully. Post ID: {post_id}")
 
 
-upload_post("Test Post", "This is a test post.", "Dog grooming")
+#upload_post("Test Post", "This is a test post.", "Dog grooming")

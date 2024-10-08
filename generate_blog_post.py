@@ -12,6 +12,7 @@ def generate_blog_post_function(blog_topic: str, products: list):
     blog_post = {
         "blog_title": "",
         "blog_content": "",
+        "image_query": "",
         "tags": [],
         "categories": []
     }
@@ -21,10 +22,11 @@ def generate_blog_post_function(blog_topic: str, products: list):
             model=ai_config.CLAUDE_MODEL,
             max_tokens=4096,
             system=ai_config.SYSTEM_PROMPT,
+            temperature=0.0,
             messages=[
                 {
                     "role": "user", 
-                    "content": f"Please create a 500 word blog post for this topic and highlight and create a backlink to the relevant products through html tags related to the blog post:\n\n<blog_topic>{blog_topic}</blog_topic><products>{products}</products>. Always return as an html formatted string for the content."
+                    "content": f"Please create a 500 word blog post for this topic and highlight and create a backlink to any relevant products through html tags (only use real websites you know or are trained on for backlinks) related to the blog post:\n\n<blog_topic>{blog_topic}</blog_topic><products>{products}</products>. Always return as an html formatted string for the content."
                 }
             ],
             tools=[
@@ -42,6 +44,10 @@ def generate_blog_post_function(blog_topic: str, products: list):
                                 "type": "string",
                                 "description": "The blog content to be generated from the transcript."
                             },
+                            "image_query": {
+                                "type": "string",
+                                "description": "The image query to be used for the blog post. This should be 1-3 words that related to the subject of the blog post."
+                            },
                             "tags": {
                                 "type": "array",
                                 "description": "The products discussed in the transcript."
@@ -51,7 +57,7 @@ def generate_blog_post_function(blog_topic: str, products: list):
                                 "description": "The categories of the blog post."
                             }
                         },
-                        "required": ["blog_title", "blog_content", "tags", "categories"]
+                        "required": ["blog_title", "blog_content", "image_querey", "tags", "categories"]
                     }
                 }
             ],
@@ -66,6 +72,7 @@ def generate_blog_post_function(blog_topic: str, products: list):
                 if content.name == "generate_blog_post_tool":
                     blog_post["blog_title"] = content.input["blog_title"]
                     blog_post["blog_content"] = content.input["blog_content"]
+                    blog_post["image_query"] = content.input["image_query"]
                     blog_post["tags"] = content.input["tags"]
                     blog_post["categories"] = content.input["categories"]
         
