@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import anthropic
 import os
 import ai_config
+import generate_blog_post as generate_blog_post
 
 import dotenv
 dotenv.load_dotenv()
@@ -17,6 +18,7 @@ def process_transcript():
     transcript = data.get('transcript')
     blog_topics = []
     products = []
+    blog_posts = []
 
     if not transcript:
         return jsonify({'error': 'No transcript provided'}), 400
@@ -42,7 +44,7 @@ def process_transcript():
                         "properties": {
                             "blog_topics": {
                                 "type": "array",
-                                "description": "The blog topics to be generated from the transcript."
+                                "description": "The blog topics to be generated from the transcript. max of 7 topics."
                             },
                             "products": {
                                 "type": "array",
@@ -60,18 +62,21 @@ def process_transcript():
         for content in response.content:
             if content.type == "tool_use":
                 if content.name == "analyze_transcript_tool":
-                    print(content.input)
                     blog_topics.extend(content.input["blog_topics"])
-                    print(blog_topics)
                     products.extend(content.input["products"])
-                    print(products)
         
     except Exception as e:
         return jsonify({'error': f'Error processing transcript: {str(e)}'}), 500
+    
+    for blog_topic in blog_topics:
+        blog_post = generate_blog_post.generate_blog_post_function(blog_topic, products)        
+        blog_posts.append(blog_post)
+        #wp_upload.upload_post(blog_topic, products)
 
     result = {
         'blog_topics': blog_topics,
-        'products': products
+        'products': products,
+        'blog_post': blog_posts
     }
 
     return jsonify(result), 200
