@@ -1,0 +1,1 @@
+CLAUD_MODEL="claude-3-haiku-20240307"
