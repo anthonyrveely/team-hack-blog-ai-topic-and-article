@@ -3,6 +3,7 @@ import anthropic
 import os
 import ai_config
 import generate_blog_post as generate_blog_post
+from wp_upload import upload_post
 
 import dotenv
 dotenv.load_dotenv()
@@ -44,7 +45,7 @@ def process_transcript():
                         "properties": {
                             "blog_topics": {
                                 "type": "array",
-                                "description": "The blog topics to be generated from the transcript. max of 7 topics."
+                                "description": "The blog topics to be generated from the transcript."
                             },
                             "products": {
                                 "type": "array",
@@ -68,15 +69,17 @@ def process_transcript():
     except Exception as e:
         return jsonify({'error': f'Error processing transcript: {str(e)}'}), 500
     
-    for blog_topic in blog_topics:
-        blog_post = generate_blog_post.generate_blog_post_function(blog_topic, products)        
-        blog_posts.append(blog_post)
-        #wp_upload.upload_post(blog_topic, products)
-
+    max_blog_posts = 5
+    blog_counter = 0
+    for blog_topic in blog_topics:             
+        while blog_counter < max_blog_posts:
+            blog_post = generate_blog_post.generate_blog_post_function(blog_topic, products)                    
+            upload_post(title=blog_post["blog_title"], content=blog_post["blog_content"], tags=blog_post["tags"], categories=blog_post["categories"])        
+            blog_counter += 1
+    
     result = {
         'blog_topics': blog_topics,
-        'products': products,
-        'blog_post': blog_posts
+        'products': products
     }
 
     return jsonify(result), 200

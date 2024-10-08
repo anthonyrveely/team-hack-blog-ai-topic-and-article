@@ -32,4 +32,4 @@ def upload_post(title, content, tags=[], categories=[]):
     print(f"Post uploaded successfully. Post ID: {post_id}")
 
 
-upload_post("Test Post", "This is a test post.")
+#upload_post("Test Post", "This is a test post.")
